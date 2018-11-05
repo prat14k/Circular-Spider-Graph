@@ -26,7 +26,7 @@
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MIG-BQ-dwf" customClass="CSGraphView" customModule="CircularSpiderGraph" customModuleProvider="target">
                                 <rect key="frame" x="62.5" y="220" width="250" height="250"/>
-                                <color key="backgroundColor" white="1" alpha="0.16796875" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="250" id="DnP-XB-PdF"/>
                                     <constraint firstAttribute="width" secondItem="MIG-BQ-dwf" secondAttribute="height" multiplier="1:1" id="dUT-kF-mj0"/>

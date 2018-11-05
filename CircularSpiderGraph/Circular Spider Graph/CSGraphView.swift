@@ -20,10 +20,12 @@ protocol CSGraphDataSource: class {
 }
 
 class CSGraphView: UIView {
-
-    let green = UIColor(hexValue: 0x0FA45A)
-    let red = UIColor(hexValue: 0xDA0032)
-    let yellow = UIColor(hexValue: 0xF6AA42)
+    
+    private var viewCenter: CGPoint { return CGPoint(x: bounds.width / 2, y: bounds.height / 2) }
+    
+    @IBInspectable private var goodResultColor: UIColor = UIColor(hexValue: 0x0FA45A)
+    @IBInspectable private var okayResultColor: UIColor = UIColor(hexValue: 0xF6AA42)
+    @IBInspectable private var badResultColor: UIColor = UIColor(hexValue: 0xDA0032)
     
     @IBInspectable private var graphColor: UIColor = .white
     @IBInspectable private var pointRadius: CGFloat = 4
@@ -40,23 +42,6 @@ class CSGraphView: UIView {
     private var maskLayer: CAShapeLayer!
     
     
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
-    }
-    
-    public required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        commonInit()
-    }
-    
-    private func commonInit() {
-        layer.contentsScale = UIScreen.main.scale
-        layer.drawsAsynchronously = true
-        layer.needsDisplayOnBoundsChange = true
-        layer.setNeedsDisplay()
-    }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -65,6 +50,7 @@ class CSGraphView: UIView {
     }
     
     private func initialSetup() {
+        isInitialSetupComplete = true
         maxRadiusScore = (maxRadiusScore > 0) ? maxRadiusScore : 100
         pointRadius = (pointRadius > 0) ? pointRadius : 4
         lineWidth = (lineWidth > 0) ? lineWidth : 2
@@ -91,63 +77,70 @@ class CSGraphView: UIView {
     override func draw(_ rect: CGRect) {
         super.draw(rect)
         drawGraph()
+        addAvgAnnotations()
     }
-
-    private func drawGraph() {
-
-        let graphLinesPath = UIBezierPath()
-        let graphDotsPath = UIBezierPath()
-        var graphDotPaths = [Arc]()
-
-        var startPoint: CGPoint! = nil
-
+    
+    private func addAvgAnnotations() {
         var angle = -CGFloat.pi / 2
         let deltaAngle = (CGFloat.pi * 2) / CGFloat(graphPointValues.count)
-        var colors = [UIColor]()
         
         for pv in graphPointValues {
-            var c: UIColor
+            let scoreFactor = CGFloat(pv.avg / maxRadiusScore)
+            let radius = CGSize(width: viewCenter.x * scoreFactor, height: viewCenter.y * scoreFactor)
+            let center = pointOnEclipse(atAngle: angle, center: viewCenter, radius: radius)
             
-            c = pv.isPriority ? red : (pv.score < pv.avg ? yellow : green)
-            colors.append(c)
-            let scoreFactor = CGFloat(pv.score / maxRadiusScore)
-
-            var newPoint = CGPoint.zero
-            newPoint.x = bounds.midX + (bounds.midX * scoreFactor * cos(angle))
-            newPoint.y = bounds.midY + (bounds.midY * scoreFactor * sin(angle))
-
-            let arc = Arc(center: newPoint, radius: 6, lineWidth: 1.5, lineColor: .white, fillColor: c)
-            graphDotPaths.append(arc)
-            graphDotsPath.append(arc.bezierPath)
+            let imageView = UIImageView(image: UIImage(named: "avgResultGraphAnnotation"))
+            imageView.center = center
+            addSubview(imageView)
             
-            if startPoint == nil {
-                graphLinesPath.move(to: newPoint)
-                startPoint = newPoint
-            } else {
-                graphLinesPath.addLine(to: newPoint)
-            }
             angle += deltaAngle
         }
-//        colors.append(colors[colors.count - 1])
-//        colors.append(colors[colors.count - 1])
-        colors.append(colors[0])
-        let gradientLayer = ConicalGradientLay()
-        gradientLayer.frame = bounds
-        gradientLayer.colors = colors
         
-        var locations = [1.0 / (5 * 2)]
-        locations.append(locations[locations.count - 1] + (1.0 / 5))
-        locations.append(locations[locations.count - 1] + (1.0 / 5))
-        locations.append(locations[locations.count - 1] + (1.0 / 5))
-        locations.append(locations[locations.count - 1] + (1.0 / 5))
-        locations.append(locations[locations.count - 1] + (1.0 / (5 * 2)))
-        gradientLayer.locations = locations
+    }
+    
+    private func drawGraph() {
+        guard graphPointValues.count > 2  else { return }
+        var graphDotPaths = [Arc]()
+        var startPoint: CGPoint! = nil
+        var lastPoint: CGPoint! = nil
+        var angle = -CGFloat.pi / 2
+        let deltaAngle = (CGFloat.pi * 2) / CGFloat(graphPointValues.count)
+        var colors = [CGColor]()
+        for pv in graphPointValues {
+            let scoreFactor = CGFloat(pv.score / maxRadiusScore)
+            let resultColor = pv.isPriority ? badResultColor : (pv.score < pv.avg ? okayResultColor : goodResultColor)
+            
+            let radius = CGSize(width: viewCenter.x * scoreFactor, height: viewCenter.y * scoreFactor)
+            let newPoint = pointOnEclipse(atAngle: angle, center: viewCenter, radius: radius)
+            
+            let arc = Arc(center: newPoint, radius: 6, lineWidth: 1.5, lineColor: .white, fillColor: resultColor)
+            graphDotPaths.append(arc)
+            
+            if startPoint == nil {
+                startPoint = newPoint
+            } else {
+                lineLayer(startPoint: lastPoint, endPoint: newPoint, gradientColors: [colors[colors.count - 1], resultColor.cgColor])
+            }
+            colors.append(resultColor.cgColor)
+            lastPoint = newPoint
+            angle += deltaAngle
+        }
+        lineLayer(startPoint: lastPoint, endPoint: startPoint, gradientColors: [colors[colors.count - 1], colors[0]])
         
-        layer.addSublayer(gradientLayer)
-        
-        graphLinesPath.addLine(to: startPoint)
+        addToLayer(graphDotPaths)
+    }
+    
+    func lineLayer(startPoint: CGPoint, endPoint: CGPoint, gradientColors: [CGColor]) {
+        let padding: CGFloat = 2
         let lineLayer = CAShapeLayer()
-        lineLayer.frame = bounds
+        let layerOrigin = CGPoint(x: min(startPoint.x, endPoint.x) - padding, y: min(startPoint.y, endPoint.y) - padding)
+        let layerSize = CGSize(width: abs(startPoint.x - endPoint.x) + (padding * 2), height: abs(startPoint.y - endPoint.y) + (padding * 2))
+        
+        let graphLinesPath = UIBezierPath()
+        graphLinesPath.move(to: CGPoint(x: startPoint.x - layerOrigin.x, y: startPoint.y - layerOrigin.y))
+        graphLinesPath.addLine(to: CGPoint(x: endPoint.x - layerOrigin.x, y: endPoint.y - layerOrigin.y))
+        
+        lineLayer.frame = CGRect(origin: CGPoint.zero, size: layerSize)
         lineLayer.path = graphLinesPath.cgPath
         lineLayer.strokeColor = UIColor.black.cgColor
         lineLayer.fillColor = UIColor.clear.cgColor
@@ -155,23 +148,50 @@ class CSGraphView: UIView {
         lineLayer.lineWidth = 3
         lineLayer.strokeEnd = 1
         
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = gradientColors
+        gradientLayer.startPoint = CGPoint(x: startPoint.x < endPoint.x ? 0 : 1, y: startPoint.y < endPoint.y ? 0 : 1)
+        gradientLayer.endPoint = CGPoint(x: startPoint.x > endPoint.x ? 0 : 1, y: startPoint.y > endPoint.y ? 0 : 1)
+        gradientLayer.frame = CGRect(origin: layerOrigin, size: layerSize)
+        gradientLayer.mask = lineLayer
         
-        let dotLayer = CAShapeLayer()
-        dotLayer.frame = bounds
-        for dotPath in graphDotPaths {
+        layer.addSublayer(gradientLayer)
+    }
+    
+    func pointOnEclipse(atAngle angle: CGFloat, center: CGPoint, radius: CGSize) -> CGPoint {
+        var point = CGPoint.zero
+        point.x = center.x + (radius.width * cos(angle))
+        point.y = center.y + (radius.height * sin(angle))
+        return point
+    }
+    
+    //    func maskLayerUsing(dotArcs: [Arc], lineLayers: [CALayer]) {
+    //        let dotMaskLayer = createDotMaskLayer(from: dotArcs)
+    
+    //        maskLayer = CAShapeLayer()
+    //        maskLayer.frame = bounds
+    //        maskLayer.addSublayer(lineLayers)
+    //        maskLayer.addSublayer(dotMaskLayer)
+    //        layer.mask = maskLayer
+    //    }
+    
+    func addToLayer(_ dotPaths: [Arc]) {
+        for dotPath in dotPaths {
             let shapeLayer = CAShapeLayer(circle: dotPath, frame: bounds)
             layer.addSublayer(shapeLayer)
             dotLayers.append(shapeLayer)
-
-            let maskShapeLayer = CAShapeLayer(circle: dotPath, frame: bounds)
-            dotLayer.addSublayer(maskShapeLayer)
         }
-
-        maskLayer = CAShapeLayer()
-        maskLayer.frame = bounds
-        maskLayer.addSublayer(lineLayer)
-        maskLayer.addSublayer(dotLayer)
-        layer.mask = maskLayer
+    }
+    
+    func createDotMaskLayer(from dotPaths: [Arc]) -> CAShapeLayer {
+        let dotMaskLayer = CAShapeLayer()
+        dotMaskLayer.frame = bounds
+        for dotPath in dotPaths {
+            let maskShapeLayer = CAShapeLayer(circle: dotPath, frame: bounds)
+            dotMaskLayer.addSublayer(maskShapeLayer)
+        }
+        
+        return dotMaskLayer
     }
     
 }
