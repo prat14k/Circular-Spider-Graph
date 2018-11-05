@@ -14,7 +14,6 @@
 		AB37B3992178C855004DA593 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AB37B3982178C855004DA593 /* Assets.xcassets */; };
 		AB37B39C2178C855004DA593 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AB37B39A2178C855004DA593 /* LaunchScreen.storyboard */; };
 		AB37B3A52178C8DF004DA593 /* CSGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB37B3A42178C8DF004DA593 /* CSGraphView.swift */; };
-		C393B54ECC369C2532C25FE4 /* Pods_CircularSpiderGraph.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79C214E45B2DFD0951EF54A6 /* Pods_CircularSpiderGraph.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,7 +36,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C393B54ECC369C2532C25FE4 /* Pods_CircularSpiderGraph.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,11 +107,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AB37B3A02178C855004DA593 /* Build configuration list for PBXNativeTarget "CircularSpiderGraph" */;
 			buildPhases = (
-				4450C4848F290F6B01FB6BAA /* [CP] Check Pods Manifest.lock */,
 				AB37B38A2178C854004DA593 /* Sources */,
 				AB37B38B2178C854004DA593 /* Frameworks */,
 				AB37B38C2178C854004DA593 /* Resources */,
-				6577D59CBCCB2FE8092FED0C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -169,45 +165,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4450C4848F290F6B01FB6BAA /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-CircularSpiderGraph-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6577D59CBCCB2FE8092FED0C /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-CircularSpiderGraph/Pods-CircularSpiderGraph-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/AEConicalGradient/AEConicalGradient.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AEConicalGradient.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CircularSpiderGraph/Pods-CircularSpiderGraph-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AB37B38A2178C854004DA593 /* Sources */ = {
@@ -361,7 +318,6 @@
 		};
 		AB37B3A12178C855004DA593 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 82B22BF027F5A463311E9828 /* Pods-CircularSpiderGraph.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -381,7 +337,6 @@
 		};
 		AB37B3A22178C855004DA593 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 59214401C8046827CA264A06 /* Pods-CircularSpiderGraph.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
