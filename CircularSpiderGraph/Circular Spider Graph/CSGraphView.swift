@@ -8,7 +8,11 @@
 
 import UIKit
 
-typealias GraphPoint = (score: Double, avg: Double)
+struct GraphPoint {
+    let score: Double
+    let avg: Double
+    let isPriority: Bool
+}
 
 protocol CSGraphDataSource: class {
     func numberOfPoints(forGraph graph: CSGraphView) -> Int
@@ -17,6 +21,10 @@ protocol CSGraphDataSource: class {
 
 class CSGraphView: UIView {
 
+    let green = UIColor(hexValue: 0x0FA45A)
+    let red = UIColor(hexValue: 0xDA0032)
+    let yellow = UIColor(hexValue: 0xF6AA42)
+    
     @IBInspectable private var graphColor: UIColor = .white
     @IBInspectable private var pointRadius: CGFloat = 4
     @IBInspectable private var lineWidth: CGFloat = 2
@@ -30,6 +38,24 @@ class CSGraphView: UIView {
     
     private var dotLayers = [CAShapeLayer]()
     private var maskLayer: CAShapeLayer!
+    
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        commonInit()
+    }
+    
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        commonInit()
+    }
+    
+    private func commonInit() {
+        layer.contentsScale = UIScreen.main.scale
+        layer.drawsAsynchronously = true
+        layer.needsDisplayOnBoundsChange = true
+        layer.setNeedsDisplay()
+    }
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -63,6 +89,7 @@ class CSGraphView: UIView {
     }
     
     override func draw(_ rect: CGRect) {
+        super.draw(rect)
         drawGraph()
     }
 
@@ -76,15 +103,20 @@ class CSGraphView: UIView {
 
         var angle = -CGFloat.pi / 2
         let deltaAngle = (CGFloat.pi * 2) / CGFloat(graphPointValues.count)
+        var colors = [UIColor]()
         
         for pv in graphPointValues {
+            var c: UIColor
+            
+            c = pv.isPriority ? red : (pv.score < pv.avg ? yellow : green)
+            colors.append(c)
             let scoreFactor = CGFloat(pv.score / maxRadiusScore)
 
             var newPoint = CGPoint.zero
             newPoint.x = bounds.midX + (bounds.midX * scoreFactor * cos(angle))
             newPoint.y = bounds.midY + (bounds.midY * scoreFactor * sin(angle))
 
-            let arc = Arc(center: newPoint, radius: 10, lineWidth: 2, lineColor: .white, fillColor: .red)
+            let arc = Arc(center: newPoint, radius: 6, lineWidth: 1.5, lineColor: .white, fillColor: c)
             graphDotPaths.append(arc)
             graphDotsPath.append(arc.bezierPath)
             
@@ -96,6 +128,22 @@ class CSGraphView: UIView {
             }
             angle += deltaAngle
         }
+//        colors.append(colors[colors.count - 1])
+//        colors.append(colors[colors.count - 1])
+        colors.append(colors[0])
+        let gradientLayer = ConicalGradientLay()
+        gradientLayer.frame = bounds
+        gradientLayer.colors = colors
+        
+        var locations = [1.0 / (5 * 2)]
+        locations.append(locations[locations.count - 1] + (1.0 / 5))
+        locations.append(locations[locations.count - 1] + (1.0 / 5))
+        locations.append(locations[locations.count - 1] + (1.0 / 5))
+        locations.append(locations[locations.count - 1] + (1.0 / 5))
+        locations.append(locations[locations.count - 1] + (1.0 / (5 * 2)))
+        gradientLayer.locations = locations
+        
+        layer.addSublayer(gradientLayer)
         
         graphLinesPath.addLine(to: startPoint)
         let lineLayer = CAShapeLayer()
@@ -104,7 +152,7 @@ class CSGraphView: UIView {
         lineLayer.strokeColor = UIColor.black.cgColor
         lineLayer.fillColor = UIColor.clear.cgColor
         lineLayer.strokeStart = 0
-        lineLayer.lineWidth = 2
+        lineLayer.lineWidth = 3
         lineLayer.strokeEnd = 1
         
         
@@ -172,6 +220,27 @@ extension CAShapeLayer {
         fillColor = circle.fillColor.cgColor
         strokeStart = 0
         strokeEnd = 1
+    }
+    
+}
+
+extension UIColor {
+    
+    convenience init(hexValue: UInt32, alpha: CGFloat = 1.0) {
+        let red = CGFloat((hexValue & 0xFF0000) >> 16)/255.0
+        let green = CGFloat((hexValue & 0xFF00) >> 8)/255.0
+        let blue = CGFloat(hexValue & 0xFF)/255.0
+        
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    convenience init(rgb: UInt) {
+        self.init(
+            red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgb & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgb & 0x0000FF) / 255.0,
+            alpha: CGFloat(1.0)
+        )
     }
     
 }

@@ -1,0 +1,6 @@
+framework module AEConicalGradient {
+  umbrella header "AEConicalGradient-umbrella.h"
+
+  export *
+  module * { export * }
+}

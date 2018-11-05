@@ -1,0 +1,6 @@
+framework module Pods_CircularSpiderGraph {
+  umbrella header "Pods-CircularSpiderGraph-umbrella.h"
+
+  export *
+  module * { export * }
+}

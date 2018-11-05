@@ -4,6 +4,7 @@
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,6 +18,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="GraphBG" translatesAutoresizingMaskIntoConstraints="NO" id="89c-aM-w07">
+                                <rect key="frame" x="69" y="220.5" width="237.5" height="226"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="89c-aM-w07" secondAttribute="height" multiplier="750:713" id="aEa-Fh-Hcu"/>
+                                </constraints>
+                            </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MIG-BQ-dwf" customClass="CSGraphView" customModule="CircularSpiderGraph" customModuleProvider="target">
                                 <rect key="frame" x="62.5" y="220" width="250" height="250"/>
                                 <color key="backgroundColor" white="1" alpha="0.16796875" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -25,12 +32,6 @@
                                     <constraint firstAttribute="width" secondItem="MIG-BQ-dwf" secondAttribute="height" multiplier="1:1" id="dUT-kF-mj0"/>
                                 </constraints>
                             </view>
-                            <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="GraphBG" translatesAutoresizingMaskIntoConstraints="NO" id="89c-aM-w07">
-                                <rect key="frame" x="69" y="220.5" width="237.5" height="226"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="89c-aM-w07" secondAttribute="height" multiplier="750:713" id="aEa-Fh-Hcu"/>
-                                </constraints>
-                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.2470588235" green="0.3411764706" blue="0.45098039220000002" alpha="0.80000000000000004" colorSpace="deviceRGB"/>
                         <constraints>
@@ -49,7 +50,7 @@
                         </variation>
                     </view>
                     <connections>
-                        <outlet property="gradView" destination="MIG-BQ-dwf" id="L3F-Z6-BcL"/>
+                        <outlet property="gradView" destination="MIG-BQ-dwf" id="A56-GI-I93"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
